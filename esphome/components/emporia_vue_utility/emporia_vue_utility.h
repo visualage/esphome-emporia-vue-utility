@@ -22,10 +22,6 @@
 // How many samples to average the watt-hours value over.
 #define MAX_WH_CHANGE_ARY 5
 
-// How often to attempt to re-join the meter when it hasn't
-// been returning readings
-#define METER_REJOIN_INTERVAL 30
-
 // How often to attempt to re-request the MGM firmware version.
 #define MGM_FIRMWARE_REQUEST_INTERVAL 3
 
@@ -140,6 +136,12 @@ class EmporiaVueUtility : public PollingComponent, public uart::UARTDevice {
   void set_update_interval(uint32_t update_interval) {
     PollingComponent::set_update_interval(update_interval);
     update_interval_ = update_interval / 1000;
+  }
+  void set_meter_join_interval(uint32_t meter_join_interval) {
+    meter_join_interval_ = meter_join_interval;
+  }
+  uint32_t get_meter_join_interval() {
+    return meter_join_interval_;
   }
   void set_power_sensor(sensor::Sensor *sensor) { power_sensor_ = sensor; }
   void set_power_export_sensor(sensor::Sensor *sensor) {
@@ -779,6 +781,7 @@ class EmporiaVueUtility : public PollingComponent, public uart::UARTDevice {
  private:
   bool debug_ = false;
   uint32_t update_interval_;
+  uint32_t meter_join_interval_ = 30;
   sensor::Sensor *power_sensor_{nullptr};
   sensor::Sensor *power_export_sensor_{nullptr};
   sensor::Sensor *power_import_sensor_{nullptr};

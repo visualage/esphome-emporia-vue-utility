@@ -25,7 +25,7 @@ void EmporiaVueUtility::loop() {
   static const time_t delayed_start_time =
       ::time(nullptr) + INITIAL_STARTUP_DELAY;
   static time_t next_expected_meter_request = 0;
-  static time_t next_meter_join = delayed_start_time + METER_REJOIN_INTERVAL;
+  static time_t next_meter_join = delayed_start_time + meter_join_interval_;
   static time_t next_version_request = 0;
   static uint8_t startup_step = 0;
   char msg_type = 0;
@@ -36,10 +36,10 @@ void EmporiaVueUtility::loop() {
 
   /* sanity checks! */
   if (next_expected_meter_request >
-      now + (INITIAL_STARTUP_DELAY + METER_REJOIN_INTERVAL)) {
+      now + (INITIAL_STARTUP_DELAY + meter_join_interval_)) {
     ESP_LOGD(TAG, "Time jumped back (%lld > %lld + %lld); resetting",
              (long long)next_expected_meter_request, (long long)now,
-             (long long)(INITIAL_STARTUP_DELAY + METER_REJOIN_INTERVAL));
+             (long long)(INITIAL_STARTUP_DELAY + meter_join_interval_));
     next_meter_join = 0;
     next_expected_meter_request = now + update_interval_;
   }
@@ -63,7 +63,7 @@ void EmporiaVueUtility::loop() {
           ask_for_bug_report();
         } else {
           last_meter_reading = now;
-          next_meter_join = now + METER_REJOIN_INTERVAL;
+          next_meter_join = now + meter_join_interval_;
         }
         break;
       case 'j':  // Meter join
@@ -130,7 +130,7 @@ void EmporiaVueUtility::loop() {
     if (now > next_meter_join) {
       startup_step = 9;  // Cancel startup messages
       send_meter_join();
-      next_meter_join = now + METER_REJOIN_INTERVAL;
+      next_meter_join = now + meter_join_interval_;
       return;
     }
 

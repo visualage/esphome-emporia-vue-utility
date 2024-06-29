@@ -35,6 +35,8 @@ EmporiaVueUtility = emporia_vue_utility_ns.class_(
     "EmporiaVueUtility", cg.PollingComponent, uart.UARTDevice
 )
 
+CONF_METER_REJOIN_INTERVAL = "meter_rejoin_interval"
+
 CONFIG_SCHEMA = cv.All(
     cv.Schema(
         {
@@ -58,6 +60,7 @@ CONFIG_SCHEMA = cv.All(
                 for name in ENERGY_SENSOR_TYPES
             },
             cv.Optional(CONF_DEBUG, default=False): cv.boolean,
+            cv.Optional(CONF_METER_REJOIN_INTERVAL, default=30): cv.positive_time_period_seconds,
         }
     )
     .extend(cv.polling_component_schema("30s"))
@@ -74,6 +77,8 @@ async def to_code(config):
         if key in config:
             sens = await sensor.new_sensor(config[key])
             cg.add(getattr(var, funcName)(sens))
+
+    cg.add(var.set_meter_join_interval(config[CONF_METER_REJOIN_INTERVAL]))
 
     if CONF_DEBUG in config:
         cg.add(var.set_debug(config[CONF_DEBUG]))
